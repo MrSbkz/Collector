@@ -3,11 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Pawn.h"
+#include "CollectorBattlePawnBase.h"
+#include "Collector/Interface/PlayerInterface.h"
 #include "CollectorBattlePawn.generated.h"
 
 UCLASS()
-class COLLECTOR_API ACollectorBattlePawn : public APawn
+class COLLECTOR_API ACollectorBattlePawn : public ACollectorBattlePawnBase, public IPlayerInterface
 {
 	GENERATED_BODY()
 
