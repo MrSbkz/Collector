@@ -21,14 +21,15 @@ public:
 	FSpecialMoveData* GetSpecialMoveDataByTag(const FGameplayTag& Tag) const;
 
 protected:
-	template<typename T>
-	static T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
-	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UDataTable> CardDataTable;
 	
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UDataTable> SpecialMoveDataTable;
+
+private:
+	template<typename T>
+	static T* GetDataTableRowByTag(UDataTable* DataTable, const FGameplayTag& Tag);
 };
 
 template <typename T>

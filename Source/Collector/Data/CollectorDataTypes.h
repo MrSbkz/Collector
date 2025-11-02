@@ -44,6 +44,9 @@ struct FSpecialMoveData : public FTableRowBase
 	FGameplayTag SpecialMoveTag = FGameplayTag();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FString Name = FString();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FString Description = FString();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

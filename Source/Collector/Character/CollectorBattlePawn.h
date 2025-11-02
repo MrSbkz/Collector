@@ -14,4 +14,7 @@ class COLLECTOR_API ACollectorBattlePawn : public ACollectorBattlePawnBase, publ
 
 public:
 	ACollectorBattlePawn();
+
+protected:
+	virtual void BeginPlay() override;
 };
