@@ -6,6 +6,8 @@
 #include "GameFramework/Pawn.h"
 #include "CollectorBattlePawnBase.generated.h"
 
+class UDeckComponent;
+
 UCLASS()
 class COLLECTOR_API ACollectorBattlePawnBase : public APawn
 {
@@ -13,4 +15,8 @@ class COLLECTOR_API ACollectorBattlePawnBase : public APawn
 
 public:
 	ACollectorBattlePawnBase();
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UDeckComponent> DeckComponent;
 };
