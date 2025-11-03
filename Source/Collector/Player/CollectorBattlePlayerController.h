@@ -31,10 +31,25 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
 	TObjectPtr<UInputAction> SwitchCameraAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> SelectRightActorAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	TObjectPtr<UInputAction> SelectLeftActorAction;
+
 private:
-	void SwitchCamera();
 	void CursorTrace();
 
+	/** Input */
+	void SwitchCamera();
+	void OnSelectRightActor();
+	void OnSelectLeftActor();
+	/** end Input */
+
+	void OnInputKeyPressed(const FKeyEvent& KeyEvent);
+	void OnMouseKeyPressed(const FPointerEvent&);
+	void UpdateActorHighlighting(AActor* Actor);
+	
 	UPROPERTY()
 	TObjectPtr<AActor> LastActor;
 
