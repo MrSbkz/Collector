@@ -10,7 +10,7 @@
 void ACollectorBattlePlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
-	
+
 	HandleMouseMovement();
 
 	if (bShowMouseCursor)
@@ -65,6 +65,12 @@ void ACollectorBattlePlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ACollectorBattlePlayerController::OnSelectLeftActor);
+
+		EnhancedInputComponent->BindAction(
+			BaseSelectAction,
+			ETriggerEvent::Started,
+			this,
+			&ACollectorBattlePlayerController::OnBaseSelect);
 	}
 }
 
@@ -105,22 +111,30 @@ void ACollectorBattlePlayerController::OnSelectLeftActor()
 	}
 }
 
-void ACollectorBattlePlayerController::OnInputKeyPressed(const FKeyEvent& KeyEvent)
+void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& InputActionValue)
 {
-	if (KeyEvent.GetKey().IsGamepadKey())
-	{
-		if (!bShowMouseCursor) return;
+	const FVector2d InputAxisVector = InputActionValue.Get<FVector2d>();
 
-		SetShowMouseCursor(false);
-		SetInputMode(FInputModeGameOnly());
+	if (FMath::Abs(InputAxisVector.X) >= FMath::Abs(InputAxisVector.Y))
+	{
+		if (UDeckComponent* OwnerDeckComponent = GetPawn()->FindComponentByClass<UDeckComponent>())
+		{
+			UpdateActorHighlighting(OwnerDeckComponent->SelectNextCard(InputAxisVector.X > 0 ? 1 : -1));
+		}
 	}
 	else
 	{
-		if (bShowMouseCursor) return;
-
-		SetShowMouseCursor(true);
-		SetInputMode(FInputModeGameAndUI());
+		UE_LOG(LogTemp, Warning, TEXT("Switch camera %s"), InputAxisVector.Y>0? *FString("up") : *FString("down"))
 	}
+}
+
+void ACollectorBattlePlayerController::OnInputKeyPressed(const FKeyEvent& KeyEvent)
+{
+	// Keyboard or gamepad key was pressed so we hide the mouse cursor
+	if (!bShowMouseCursor) return;
+
+	SetShowMouseCursor(false);
+	SetInputMode(FInputModeGameOnly());
 }
 
 void ACollectorBattlePlayerController::OnMouseKeyPressed(const FPointerEvent&)
@@ -155,12 +169,12 @@ void ACollectorBattlePlayerController::UpdateActorHighlighting(AActor* Actor)
 void ACollectorBattlePlayerController::HandleMouseMovement()
 {
 	if (bShowMouseCursor) return;
-	
+
 	float MouseX, MouseY;
 	if (GetMousePosition(MouseX, MouseY))
 	{
 		const FVector2D CurrentPos(MouseX, MouseY);
-        
+
 		float Distance = FVector2D::Distance(LastMousePos, CurrentPos);
 
 		if (Distance > MouseMovementThreshold)
@@ -168,7 +182,7 @@ void ACollectorBattlePlayerController::HandleMouseMovement()
 			SetShowMouseCursor(true);
 			SetInputMode(FInputModeGameAndUI());
 		}
-        
+
 		LastMousePos = CurrentPos;
 	}
 }

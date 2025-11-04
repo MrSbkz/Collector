@@ -38,7 +38,13 @@ protected:
 	TObjectPtr<UInputAction> SelectLeftActorAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	float MouseMovementThreshold;
+	TObjectPtr<UInputAction> BaseSelectAction;
+
+	UPROPERTY(
+		EditDefaultsOnly,
+		Category = "Input",
+		meta = (ToolTip = "Mouse movement distance threshold to show cursor when using keyboard/gamepad input"))
+	float MouseMovementThreshold = 5.f;
 
 private:
 	void CursorTrace();
@@ -47,13 +53,14 @@ private:
 	void SwitchCamera();
 	void OnSelectRightActor();
 	void OnSelectLeftActor();
+	void OnBaseSelect(const FInputActionValue& InputActionValue);
 	/** end Input */
 
 	void OnInputKeyPressed(const FKeyEvent& KeyEvent);
 	void OnMouseKeyPressed(const FPointerEvent&);
 	void UpdateActorHighlighting(AActor* Actor);
 	void HandleMouseMovement();
-	
+
 	UPROPERTY()
 	TObjectPtr<AActor> LastActor;
 
