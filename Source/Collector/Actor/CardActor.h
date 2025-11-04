@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "Collector/Interface/InteractionInterface.h"
 #include "GameFramework/Actor.h"
 #include "CardActor.generated.h"
 
@@ -49,26 +50,38 @@ struct FCardDetails
 	TObjectPtr<UTexture2D> CardFaceImage = nullptr;
 };
 
-
 inline bool operator==(const FCardDetails& Left, const FCardDetails& Right)
 {
 	return Left.CardId == Right.CardId;
 }
 
 UCLASS()
-class COLLECTOR_API ACardActor : public AActor
+class COLLECTOR_API ACardActor : public AActor, public IInteractionInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	ACardActor();
 
+	/** Interaction Interface */
+	virtual void Highlight() override;
+	virtual void Unhighlight() override;
+	/** end Interaction Interface */
+
 	void SetData(const FCardDetails& CardData);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetCardUI(const FCardDetails& CardData);
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category="Highlighting")
+	float HighlightingDistance = 10.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Highlighting")
+	float HeightOffset = 10.f;
+
 private:
 	FCardDetails CardDetails;
 
+	FTransform InitialTransform;
 };

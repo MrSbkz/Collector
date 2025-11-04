@@ -18,6 +18,8 @@ class COLLECTOR_API UDeckComponent : public UActorComponent
 public:
 	UDeckComponent();
 	void SpawnCards();
+	void SetHighlightedCard(AActor* Actor);
+	AActor* SelectNextCard(int32 Value);
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
@@ -48,6 +50,7 @@ private:
 	void LoadCards();
 	void InitializeCardsInHand();
 	void UpdateHandLayout();
+	int32 GetHighlightedCardIndex() const;
 	
 	UPROPERTY()
 	TArray<ACardActor*> HandCards;
@@ -57,4 +60,7 @@ private:
 
 	UPROPERTY()
 	TArray<FCardDetails> RemainingCards;
+
+	UPROPERTY()
+	TObjectPtr<AActor> HighlightedActor;
 };

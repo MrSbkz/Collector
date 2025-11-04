@@ -18,6 +18,30 @@ void UDeckComponent::SpawnCards()
 	UpdateHandLayout();
 }
 
+void UDeckComponent::SetHighlightedCard(AActor* Actor)
+{
+	HighlightedActor = Actor;
+}
+
+AActor* UDeckComponent::SelectNextCard(const int32 Value)
+{
+	if (HandCards.Num() == 0) return nullptr;
+
+	if (!HighlightedActor)
+	{
+		return HandCards[0];
+	}
+
+	const int32 HighlightedActorIndex = GetHighlightedCardIndex();
+	const int32 NextIndex = HighlightedActorIndex + Value;
+	if (NextIndex < 0 || NextIndex >= HandCards.Num())
+	{
+		return HighlightedActor;
+	}
+
+	return HandCards[NextIndex];
+}
+
 void UDeckComponent::LoadCards()
 {
 	// I think I'll need to load Player Cards from disk first, and then check if we don't have any loaded data
@@ -92,7 +116,7 @@ void UDeckComponent::UpdateHandLayout()
 
 	for (int32 i = 0; i < NumCards; i++)
 	{
-		const float OffsetY = (i - (NumCards - 1) / 2.0f) * CardSpacing;
+		const float OffsetY = -((i - (NumCards - 1) / 2.0f) * CardSpacing);
 		float Angle = 0.f;
 
 		FVector TargetLocation = Center + HandCards[i]->GetActorRightVector() * OffsetY;
@@ -111,4 +135,19 @@ void UDeckComponent::UpdateHandLayout()
 			HandCards[i]->SetActorLocationAndRotation(TargetLocation, TargetRotation);
 		}
 	}
+}
+
+int32 UDeckComponent::GetHighlightedCardIndex() const
+{
+	if (!HighlightedActor) return 0;
+
+	for (int i = 0; i < HandCards.Num(); ++i)
+	{
+		if (HandCards[i] == Cast<ACardActor>(HighlightedActor))
+		{
+			return i;
+		}
+	}
+
+	return 0;
 }
