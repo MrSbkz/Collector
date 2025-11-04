@@ -25,17 +25,20 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> SwitchCameraAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> SelectRightActorAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> SelectLeftActorAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	float MouseMovementThreshold;
 
 private:
 	void CursorTrace();
@@ -49,10 +52,13 @@ private:
 	void OnInputKeyPressed(const FKeyEvent& KeyEvent);
 	void OnMouseKeyPressed(const FPointerEvent&);
 	void UpdateActorHighlighting(AActor* Actor);
+	void HandleMouseMovement();
 	
 	UPROPERTY()
 	TObjectPtr<AActor> LastActor;
 
 	UPROPERTY()
 	TObjectPtr<AActor> ThisActor;
+
+	FVector2D LastMousePos;
 };

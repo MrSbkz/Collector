@@ -10,6 +10,8 @@
 void ACollectorBattlePlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
+	
+	HandleMouseMovement();
 
 	if (bShowMouseCursor)
 	{
@@ -147,5 +149,26 @@ void ACollectorBattlePlayerController::UpdateActorHighlighting(AActor* Actor)
 			Cast<IInteractionInterface>(ThisActor)->Highlight();
 			if (OwnerDeckComponent) OwnerDeckComponent->SetHighlightedCard(ThisActor);
 		}
+	}
+}
+
+void ACollectorBattlePlayerController::HandleMouseMovement()
+{
+	if (bShowMouseCursor) return;
+	
+	float MouseX, MouseY;
+	if (GetMousePosition(MouseX, MouseY))
+	{
+		const FVector2D CurrentPos(MouseX, MouseY);
+        
+		float Distance = FVector2D::Distance(LastMousePos, CurrentPos);
+
+		if (Distance > MouseMovementThreshold)
+		{
+			SetShowMouseCursor(true);
+			SetInputMode(FInputModeGameAndUI());
+		}
+        
+		LastMousePos = CurrentPos;
 	}
 }
