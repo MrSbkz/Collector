@@ -29,31 +29,36 @@ protected:
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> SwitchCameraAction;
+	TObjectPtr<UInputAction> BaseSelectAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> SelectRightActorAction;
+	TObjectPtr<UInputAction> NextCameraAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> SelectLeftActorAction;
+	TObjectPtr<UInputAction> PreviousCameraAction;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	float MouseMovementThreshold;
+	UPROPERTY(
+		EditDefaultsOnly,
+		Category = "Input",
+		meta = (ToolTip = "Mouse movement distance threshold to show cursor when using keyboard/gamepad input"))
+	float MouseMovementThreshold = 5.f;
 
 private:
 	void CursorTrace();
 
 	/** Input */
-	void SwitchCamera();
+	void NextCamera();
+	void PreviousCamera();
 	void OnSelectRightActor();
 	void OnSelectLeftActor();
+	void OnBaseSelect(const FInputActionValue& InputActionValue);
 	/** end Input */
 
 	void OnInputKeyPressed(const FKeyEvent& KeyEvent);
 	void OnMouseKeyPressed(const FPointerEvent&);
 	void UpdateActorHighlighting(AActor* Actor);
 	void HandleMouseMovement();
-	
+
 	UPROPERTY()
 	TObjectPtr<AActor> LastActor;
 

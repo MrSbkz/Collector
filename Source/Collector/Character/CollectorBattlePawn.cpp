@@ -16,3 +16,21 @@ void ACollectorBattlePawn::BeginPlay()
 
 	DeckComponent->SpawnCards();
 }
+
+ECameraPosition ACollectorBattlePawn::GetNextCameraPosition(
+	const ECameraPosition CurrentCameraPosition,
+	int32 NextCameraPositionIndex)
+{
+	UEnum* EnumPtr = StaticEnum<ECameraPosition>();
+	if (NextCameraPositionIndex >= 0 && NextCameraPositionIndex < EnumPtr->NumEnums())
+	{
+		const ECameraPosition NextCameraPosition = static_cast<ECameraPosition>(NextCameraPositionIndex);
+		
+		if (CameraPositionsToTransforms.Contains(NextCameraPosition))
+		{
+			return NextCameraPosition;
+		}
+	}
+
+	return CurrentCameraPosition;
+}
