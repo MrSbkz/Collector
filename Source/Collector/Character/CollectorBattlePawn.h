@@ -17,4 +17,12 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
+	ECameraPosition GetNextCameraPosition(
+		const ECameraPosition CurrentCameraPosition,
+		int32 NextCameraPositionIndex);
+
+	UPROPERTY(BlueprintReadWrite)
+	TMap<ECameraPosition, FTransform> CameraPositionsToTransforms;
 };

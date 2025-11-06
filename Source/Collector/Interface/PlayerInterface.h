@@ -6,6 +6,16 @@
 #include "UObject/Interface.h"
 #include "PlayerInterface.generated.h"
 
+// NOTE: Order is important here
+UENUM(BlueprintType)
+enum class ECameraPosition : uint8
+{
+	None,
+	Hand,
+	Middle,
+	Table
+};
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UPlayerInterface : public UInterface
@@ -23,5 +33,5 @@ class COLLECTOR_API IPlayerInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SwitchCamera();
+	void SwitchCamera(int32 Value);
 };

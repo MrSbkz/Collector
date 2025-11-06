@@ -49,22 +49,16 @@ void ACollectorBattlePlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
 		EnhancedInputComponent->BindAction(
-			SwitchCameraAction,
+			NextCameraAction,
 			ETriggerEvent::Started,
 			this,
-			&ACollectorBattlePlayerController::SwitchCamera);
-
+			&ACollectorBattlePlayerController::NextCamera);
+		
 		EnhancedInputComponent->BindAction(
-			SelectRightActorAction,
+			PreviousCameraAction,
 			ETriggerEvent::Started,
 			this,
-			&ACollectorBattlePlayerController::OnSelectRightActor);
-
-		EnhancedInputComponent->BindAction(
-			SelectLeftActorAction,
-			ETriggerEvent::Started,
-			this,
-			&ACollectorBattlePlayerController::OnSelectLeftActor);
+			&ACollectorBattlePlayerController::PreviousCamera);
 
 		EnhancedInputComponent->BindAction(
 			BaseSelectAction,
@@ -85,11 +79,20 @@ void ACollectorBattlePlayerController::CursorTrace()
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-void ACollectorBattlePlayerController::SwitchCamera()
+void ACollectorBattlePlayerController::NextCamera()
 {
 	if (const IPlayerInterface* PlayerInterface = Cast<IPlayerInterface>(GetPawn()))
 	{
-		PlayerInterface->Execute_SwitchCamera(GetPawn());
+		PlayerInterface->Execute_SwitchCamera(GetPawn(), 1);
+	}
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+void ACollectorBattlePlayerController::PreviousCamera()
+{
+	if (const IPlayerInterface* PlayerInterface = Cast<IPlayerInterface>(GetPawn()))
+	{
+		PlayerInterface->Execute_SwitchCamera(GetPawn(), -1);
 	}
 }
 
@@ -124,7 +127,14 @@ void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& Inp
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Switch camera %s"), InputAxisVector.Y>0? *FString("up") : *FString("down"))
+		if (InputAxisVector.Y > 0)
+		{
+			NextCamera();
+		}
+		else
+		{
+			PreviousCamera();
+		}
 	}
 }
 

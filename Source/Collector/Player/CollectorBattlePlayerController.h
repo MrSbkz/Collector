@@ -29,16 +29,13 @@ protected:
 	TObjectPtr<UInputMappingContext> InputMappingContext;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> SwitchCameraAction;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> SelectRightActorAction;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> SelectLeftActorAction;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> BaseSelectAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> NextCameraAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> PreviousCameraAction;
 
 	UPROPERTY(
 		EditDefaultsOnly,
@@ -50,7 +47,8 @@ private:
 	void CursorTrace();
 
 	/** Input */
-	void SwitchCamera();
+	void NextCamera();
+	void PreviousCamera();
 	void OnSelectRightActor();
 	void OnSelectLeftActor();
 	void OnBaseSelect(const FInputActionValue& InputActionValue);
