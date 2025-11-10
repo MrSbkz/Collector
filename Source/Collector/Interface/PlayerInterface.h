@@ -34,4 +34,7 @@ class COLLECTOR_API IPlayerInterface
 public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SwitchCamera(int32 Value);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	FTransform GetPickedCardTransform();
 };

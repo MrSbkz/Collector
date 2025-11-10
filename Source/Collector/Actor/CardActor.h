@@ -80,6 +80,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Highlighting")
 	float HeightOffset = 10.f;
 
+	UPROPERTY(BlueprintReadOnly)
+	FTransform HighlightTransform = FTransform();
+
 private:
 	FCardDetails CardDetails;
 

@@ -42,6 +42,8 @@ void ACardActor::Highlight()
 					HighlightingDistance);
 
 				SetActorLocation(NewLocation);
+
+				HighlightTransform = GetTransform();
 			}
 		}
 	}
@@ -50,6 +52,7 @@ void ACardActor::Highlight()
 void ACardActor::Unhighlight()
 {
 	SetActorTransform(InitialTransform);
+	//HighlightTransform = FTransform();
 }
 
 void ACardActor::SetData(const FCardDetails& CardData)
