@@ -83,8 +83,13 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	FTransform HighlightTransform = FTransform();
 
+	UPROPERTY(BlueprintReadOnly)
+	FTransform InitialTransform;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool IsPicked = false;
+
 private:
 	FCardDetails CardDetails;
-
-	FTransform InitialTransform;
+	bool IsHighlighted = false;
 };

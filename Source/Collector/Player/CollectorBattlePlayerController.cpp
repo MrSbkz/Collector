@@ -53,7 +53,7 @@ void ACollectorBattlePlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ACollectorBattlePlayerController::NextCamera);
-		
+
 		EnhancedInputComponent->BindAction(
 			PreviousCameraAction,
 			ETriggerEvent::Started,
@@ -147,14 +147,21 @@ void ACollectorBattlePlayerController::PickActor()
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ACollectorBattlePlayerController::CancelPicking()
 {
-	if (!IsActorPickedUp || !IsValid(ThisActor) || !ThisActor->Implements<UInteractionInterface>())
+	if (!IsActorPickedUp || !IsValid(PickedActor) || !PickedActor->Implements<UInteractionInterface>())
 	{
 		return;
 	}
 
-	PickedActor = nullptr;
+	IInteractionInterface::Execute_CancelPicking(PickedActor);
+
 	IsActorPickedUp = false;
-	IInteractionInterface::Execute_CancelPicking(ThisActor);
+
+	if (!bShowMouseCursor)
+	{
+		UpdateActorHighlighting(PickedActor);
+	}
+
+	PickedActor = nullptr;
 }
 
 void ACollectorBattlePlayerController::OnInputKeyPressed(const FKeyEvent& KeyEvent)
