@@ -17,6 +17,11 @@ void ACollectorBattlePawn::BeginPlay()
 	DeckComponent->SpawnCards();
 }
 
+FTransform ACollectorBattlePawn::GetPickedCardTransform_Implementation()
+{
+	return PickedCardTransform;
+}
+
 ECameraPosition ACollectorBattlePawn::GetNextCameraPosition(
 	const ECameraPosition CurrentCameraPosition,
 	int32 NextCameraPositionIndex)

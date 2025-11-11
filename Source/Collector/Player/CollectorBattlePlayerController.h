@@ -37,6 +37,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> PreviousCameraAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> PickActorAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	TObjectPtr<UInputAction> CancelPickingAction;
+
 	UPROPERTY(
 		EditDefaultsOnly,
 		Category = "Input",
@@ -49,9 +55,9 @@ private:
 	/** Input */
 	void NextCamera();
 	void PreviousCamera();
-	void OnSelectRightActor();
-	void OnSelectLeftActor();
 	void OnBaseSelect(const FInputActionValue& InputActionValue);
+	void PickActor();
+	void CancelPicking();
 	/** end Input */
 
 	void OnInputKeyPressed(const FKeyEvent& KeyEvent);
@@ -65,5 +71,10 @@ private:
 	UPROPERTY()
 	TObjectPtr<AActor> ThisActor;
 
+	UPROPERTY()
+	TObjectPtr<AActor> PickedActor;
+
 	FVector2D LastMousePos;
+
+	bool IsActorPickedUp = false;
 };

@@ -9,6 +9,8 @@ ACardActor::ACardActor()
 
 void ACardActor::Highlight()
 {
+	if (IsPicked) return;
+	
 	if (AActor* OwnerActor = GetOwner())
 	{
 		if (const APawn* OwnerPawn = Cast<APawn>(OwnerActor))
@@ -42,6 +44,9 @@ void ACardActor::Highlight()
 					HighlightingDistance);
 
 				SetActorLocation(NewLocation);
+
+				HighlightTransform = GetTransform();
+				IsHighlighted = true;
 			}
 		}
 	}
@@ -49,7 +54,10 @@ void ACardActor::Highlight()
 
 void ACardActor::Unhighlight()
 {
+	if (IsPicked) return;
+	
 	SetActorTransform(InitialTransform);
+	IsHighlighted = false;
 }
 
 void ACardActor::SetData(const FCardDetails& CardData)

@@ -24,4 +24,10 @@ class COLLECTOR_API IInteractionInterface
 public:
 	virtual void Highlight() = 0;	
 	virtual void Unhighlight() = 0;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Pick();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void CancelPicking();
 };

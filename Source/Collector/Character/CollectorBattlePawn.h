@@ -18,6 +18,10 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	/** Player Interface*/
+	virtual FTransform GetPickedCardTransform_Implementation() override;
+	/** end Player Interface*/
+
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	ECameraPosition GetNextCameraPosition(
 		const ECameraPosition CurrentCameraPosition,
@@ -25,4 +29,7 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	TMap<ECameraPosition, FTransform> CameraPositionsToTransforms;
+
+	UPROPERTY(BlueprintReadWrite)
+	FTransform PickedCardTransform;
 };

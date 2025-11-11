@@ -53,7 +53,7 @@ void ACollectorBattlePlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ACollectorBattlePlayerController::NextCamera);
-		
+
 		EnhancedInputComponent->BindAction(
 			PreviousCameraAction,
 			ETriggerEvent::Started,
@@ -65,6 +65,18 @@ void ACollectorBattlePlayerController::SetupInputComponent()
 			ETriggerEvent::Started,
 			this,
 			&ACollectorBattlePlayerController::OnBaseSelect);
+
+		EnhancedInputComponent->BindAction(
+			PickActorAction,
+			ETriggerEvent::Started,
+			this,
+			&ACollectorBattlePlayerController::PickActor);
+
+		EnhancedInputComponent->BindAction(
+			CancelPickingAction,
+			ETriggerEvent::Started,
+			this,
+			&ACollectorBattlePlayerController::CancelPicking);
 	}
 }
 
@@ -96,28 +108,9 @@ void ACollectorBattlePlayerController::PreviousCamera()
 	}
 }
 
-// ReSharper disable once CppMemberFunctionMayBeConst
-void ACollectorBattlePlayerController::OnSelectRightActor()
-{
-	if (UDeckComponent* OwnerDeckComponent = GetPawn()->FindComponentByClass<UDeckComponent>())
-	{
-		UpdateActorHighlighting(OwnerDeckComponent->SelectNextCard(1));
-	}
-}
-
-// ReSharper disable once CppMemberFunctionMayBeConst
-void ACollectorBattlePlayerController::OnSelectLeftActor()
-{
-	if (UDeckComponent* OwnerDeckComponent = GetPawn()->FindComponentByClass<UDeckComponent>())
-	{
-		UpdateActorHighlighting(OwnerDeckComponent->SelectNextCard(-1));
-	}
-}
-
 void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& InputActionValue)
 {
 	const FVector2d InputAxisVector = InputActionValue.Get<FVector2d>();
-
 	if (FMath::Abs(InputAxisVector.X) >= FMath::Abs(InputAxisVector.Y))
 	{
 		if (UDeckComponent* OwnerDeckComponent = GetPawn()->FindComponentByClass<UDeckComponent>())
@@ -136,6 +129,39 @@ void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& Inp
 			PreviousCamera();
 		}
 	}
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+void ACollectorBattlePlayerController::PickActor()
+{
+	if (IsActorPickedUp || !IsValid(ThisActor) || !ThisActor->Implements<UInteractionInterface>())
+	{
+		return;
+	}
+
+	PickedActor = ThisActor;
+	IsActorPickedUp = true;
+	IInteractionInterface::Execute_Pick(ThisActor);
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+void ACollectorBattlePlayerController::CancelPicking()
+{
+	if (!IsActorPickedUp || !IsValid(PickedActor) || !PickedActor->Implements<UInteractionInterface>())
+	{
+		return;
+	}
+
+	IInteractionInterface::Execute_CancelPicking(PickedActor);
+
+	IsActorPickedUp = false;
+
+	if (!bShowMouseCursor)
+	{
+		UpdateActorHighlighting(PickedActor);
+	}
+
+	PickedActor = nullptr;
 }
 
 void ACollectorBattlePlayerController::OnInputKeyPressed(const FKeyEvent& KeyEvent)
