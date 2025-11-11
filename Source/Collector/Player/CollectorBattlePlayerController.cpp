@@ -3,6 +3,7 @@
 #include "CollectorBattlePlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Collector/AwaitableObject.h"
 #include "Collector/Components/DeckComponent.h"
 #include "Collector/Interface/InteractionInterface.h"
 #include "Collector/Interface/PlayerInterface.h"
@@ -93,18 +94,28 @@ void ACollectorBattlePlayerController::CursorTrace()
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ACollectorBattlePlayerController::NextCamera()
 {
+	if (IsActorPicked || IsCameraSwitching) return;
+
 	if (const IPlayerInterface* PlayerInterface = Cast<IPlayerInterface>(GetPawn()))
 	{
-		PlayerInterface->Execute_SwitchCamera(GetPawn(), 1);
+		IsCameraSwitching = true;
+		UAwaitableObject* CallbackObject = NewObject<UAwaitableObject>();
+		CallbackObject->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnCameraSwitchFinished);
+		PlayerInterface->Execute_SwitchCamera(GetPawn(), 1, CallbackObject);
 	}
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ACollectorBattlePlayerController::PreviousCamera()
 {
+	if (IsActorPicked || IsCameraSwitching) return;
+
 	if (const IPlayerInterface* PlayerInterface = Cast<IPlayerInterface>(GetPawn()))
 	{
-		PlayerInterface->Execute_SwitchCamera(GetPawn(), -1);
+		IsCameraSwitching = true;
+		UAwaitableObject* CallbackObject = NewObject<UAwaitableObject>();
+		CallbackObject->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnCameraSwitchFinished);
+		PlayerInterface->Execute_SwitchCamera(GetPawn(), -1, CallbackObject);
 	}
 }
 
@@ -134,34 +145,42 @@ void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& Inp
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ACollectorBattlePlayerController::PickActor()
 {
-	if (IsActorPickedUp || !IsValid(ThisActor) || !ThisActor->Implements<UInteractionInterface>())
+	if (IsCameraSwitching || IsActorPicked || !IsValid(ThisActor) || !ThisActor->Implements<UInteractionInterface>())
 	{
 		return;
 	}
 
 	PickedActor = ThisActor;
-	IsActorPickedUp = true;
+	IsActorPicked = true;
+	IsCameraSwitching = true;
 	IInteractionInterface::Execute_Pick(ThisActor);
+
+	UAwaitableObject* SwitchCameraCallbackObject = NewObject<UAwaitableObject>();
+	SwitchCameraCallbackObject->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnCameraSwitchFinished);
+	IPlayerInterface::Execute_SwitchCameraToPosition(GetPawn(), ECameraPosition::Table, SwitchCameraCallbackObject);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ACollectorBattlePlayerController::CancelPicking()
 {
-	if (!IsActorPickedUp || !IsValid(PickedActor) || !PickedActor->Implements<UInteractionInterface>())
+	if (IsCameraSwitching
+		|| !IsActorPicked
+		|| !IsValid(PickedActor)
+		|| !PickedActor->Implements<UInteractionInterface>())
 	{
 		return;
 	}
+	IsCameraSwitching = true;
 
-	IInteractionInterface::Execute_CancelPicking(PickedActor);
+	UAwaitableObject* CancelingCallback = NewObject<UAwaitableObject>();
+	CancelingCallback->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnActorCancelingFinished);
+	IInteractionInterface::Execute_CancelPicking(PickedActor, CancelingCallback);
 
-	IsActorPickedUp = false;
+	UAwaitableObject* SwitchCameraCallback = NewObject<UAwaitableObject>();
+	SwitchCameraCallback->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnCameraSwitchFinished);
+	IPlayerInterface::Execute_SwitchCameraToPosition(GetPawn(), ECameraPosition::Middle, SwitchCameraCallback);
 
-	if (!bShowMouseCursor)
-	{
-		UpdateActorHighlighting(PickedActor);
-	}
-
-	PickedActor = nullptr;
+	IsActorPicked = false;
 }
 
 void ACollectorBattlePlayerController::OnInputKeyPressed(const FKeyEvent& KeyEvent)
@@ -221,4 +240,15 @@ void ACollectorBattlePlayerController::HandleMouseMovement()
 
 		LastMousePos = CurrentPos;
 	}
+}
+
+void ACollectorBattlePlayerController::OnCameraSwitchFinished()
+{
+	IsCameraSwitching = false;
+}
+
+void ACollectorBattlePlayerController::OnActorCancelingFinished()
+{
+	//UpdateActorHighlighting(PickedActor);
+	PickedActor = nullptr;
 }
