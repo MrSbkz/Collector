@@ -65,6 +65,14 @@ private:
 	void UpdateActorHighlighting(AActor* Actor);
 	void HandleMouseMovement();
 
+	/** Callbacks */
+	UFUNCTION()
+	void OnCameraSwitchFinished();
+
+	UFUNCTION()
+	void OnActorCancelingFinished();
+	/** end Callbacks */
+
 	UPROPERTY()
 	TObjectPtr<AActor> LastActor;
 
@@ -75,6 +83,6 @@ private:
 	TObjectPtr<AActor> PickedActor;
 
 	FVector2D LastMousePos;
-
-	bool IsActorPickedUp = false;
+	bool IsActorPicked = false;
+	bool IsCameraSwitching = false;
 };

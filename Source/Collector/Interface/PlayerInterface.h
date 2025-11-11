@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Collector/AwaitableObject.h"
 #include "UObject/Interface.h"
 #include "PlayerInterface.generated.h"
 
@@ -32,11 +33,11 @@ class COLLECTOR_API IPlayerInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SwitchCamera(int32 Value);
+	UFUNCTION(BlueprintImplementableEvent)
+	void SwitchCamera(int32 Value, const UAwaitableObject* CallbackObject);
 	
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void SwitchCameraToPosition(ECameraPosition CameraPosition);
+	UFUNCTION(BlueprintImplementableEvent)
+	void SwitchCameraToPosition(ECameraPosition CameraPosition, const UAwaitableObject* CallbackObject);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	FTransform GetPickedCardTransform();

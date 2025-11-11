@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Collector/AwaitableObject.h"
 #include "UObject/Interface.h"
 #include "InteractionInterface.generated.h"
 
@@ -29,5 +30,5 @@ public:
 	void Pick();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void CancelPicking();
+	void CancelPicking(const UAwaitableObject* CallbackObject);
 };
