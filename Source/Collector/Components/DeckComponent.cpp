@@ -42,6 +42,21 @@ AActor* UDeckComponent::SelectNextCard(const int32 Value)
 	return HandCards[NextIndex];
 }
 
+void UDeckComponent::HideOrShowHandCards(AActor* IgnoredActor, const bool Hide)
+{
+	const ACardActor* IgnoredCard = Cast<ACardActor>(IgnoredActor);
+	for (ACardActor* Card : HandCards)
+	{
+		if (Card != IgnoredCard)
+		{
+			FVector TargetLocation = Card->GetActorLocation();
+			TargetLocation.Z += Hide ? HiddenCardsZOffset * -1.f : HiddenCardsZOffset;
+
+			Card->MoveToLocation(TargetLocation);
+		}
+	}
+}
+
 void UDeckComponent::LoadCards()
 {
 	// I think I'll need to load Player Cards from disk first, and then check if we don't have any loaded data

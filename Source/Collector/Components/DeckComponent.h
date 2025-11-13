@@ -21,6 +21,9 @@ public:
 	void SetHighlightedCard(AActor* Actor);
 	AActor* SelectNextCard(int32 Value);
 
+	UFUNCTION(BlueprintCallable)
+	void HideOrShowHandCards(AActor* IgnoredActor, const bool Hide);
+
 protected:
 	UPROPERTY(EditDefaultsOnly)
 	TArray<FGameplayTag> StartupCardsTags;
@@ -42,6 +45,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly)
 	bool IsFanSpawning = false;
+
+	UPROPERTY(EditDefaultsOnly)
+	float HiddenCardsZOffset = 15.f;
 
 private:
 	void LoadCards();

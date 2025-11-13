@@ -21,23 +21,15 @@ protected:
 	virtual void BeginPlay() override;
 
 	/** Player Interface*/
-	virtual FTransform GetPickedCardTransform_Implementation() override;
+	virtual FVector GetPickedCardLocation_Implementation() override;
 	/** end Player Interface*/
-
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	ECameraPosition GetNextCameraPosition(
-		const ECameraPosition CurrentCameraPosition,
-		int32 NextCameraPositionIndex);
-
-	UPROPERTY(BlueprintReadWrite)
-	TMap<ECameraPosition, FTransform> CameraPositionsToTransforms;
-
-	UPROPERTY(BlueprintReadWrite)
-	FTransform PickedCardTransform;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent> CameraComponent;
 
 	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UBillboardComponent> CardsBillboardComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UBillboardComponent> PickedCardBillboardComponent;
 };

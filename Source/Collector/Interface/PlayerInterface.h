@@ -32,7 +32,7 @@ class COLLECTOR_API IPlayerInterface
 	GENERATED_BODY()
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
-public:
+public:	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	FTransform GetPickedCardTransform();
+	FVector GetPickedCardLocation();
 };
