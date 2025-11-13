@@ -70,16 +70,32 @@ void ACollectorBattlePlayerController::SetupInputComponent()
 
 void ACollectorBattlePlayerController::CursorTrace()
 {
+	if (IsPickedActorMoving) return;
+	
 	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 
-	if (!CursorHit.bBlockingHit) return;
+	if (!CursorHit.bBlockingHit)
+	{
+		if (LastActor && LastActor->Implements<UInteractionInterface>())
+		{
+			UDeckComponent* OwnerDeckComponent = GetPawn()->FindComponentByClass<UDeckComponent>();
+			Cast<IInteractionInterface>(LastActor)->Unhighlight();
+			if (OwnerDeckComponent) OwnerDeckComponent->SetHighlightedCard(nullptr);
 
+			LastActor = nullptr;
+			ThisActor = nullptr;
+		}
+		return;
+	}
+	
 	UpdateActorHighlighting(CursorHit.GetActor());
 }
 
 void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& InputActionValue)
 {
+	if (IsActorPicked || IsPickedActorMoving) return;
+	
 	const FVector2d InputAxisVector = InputActionValue.Get<FVector2d>();
 	if (FMath::Abs(InputAxisVector.X) >= FMath::Abs(InputAxisVector.Y))
 	{
@@ -103,8 +119,13 @@ void ACollectorBattlePlayerController::PickActor()
 	}
 
 	PickedActor = ThisActor;
+	ThisActor = nullptr;
 	IsActorPicked = true;
-	IInteractionInterface::Execute_Pick(ThisActor);
+	IsPickedActorMoving = true;
+
+	UAwaitableObject* PickActorCallback = NewObject<UAwaitableObject>();
+	PickActorCallback->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnActorPickingFinished);
+	IInteractionInterface::Execute_Pick(PickedActor, PickActorCallback);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -117,6 +138,7 @@ void ACollectorBattlePlayerController::CancelPicking()
 		return;
 	}
 
+	IsPickedActorMoving = true;
 	UAwaitableObject* CancelingCallback = NewObject<UAwaitableObject>();
 	CancelingCallback->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnActorCancelingFinished);
 	IInteractionInterface::Execute_CancelPicking(PickedActor, CancelingCallback);
@@ -170,10 +192,7 @@ void ACollectorBattlePlayerController::HandleMouseMovement()
 	if (GetMousePosition(MouseX, MouseY))
 	{
 		const FVector2D CurrentPos(MouseX, MouseY);
-
-		float Distance = FVector2D::Distance(LastMousePos, CurrentPos);
-
-		if (Distance > MouseMovementThreshold)
+		if (FVector2D::Distance(LastMousePos, CurrentPos) > MouseMovementThreshold)
 		{
 			SetShowMouseCursor(true);
 			SetInputMode(FInputModeGameAndUI());
@@ -185,6 +204,12 @@ void ACollectorBattlePlayerController::HandleMouseMovement()
 
 void ACollectorBattlePlayerController::OnActorCancelingFinished()
 {
-	//UpdateActorHighlighting(PickedActor);
+	UpdateActorHighlighting(PickedActor);
+	IsPickedActorMoving = false;
 	PickedActor = nullptr;
+}
+
+void ACollectorBattlePlayerController::OnActorPickingFinished()
+{
+	IsPickedActorMoving = false;
 }

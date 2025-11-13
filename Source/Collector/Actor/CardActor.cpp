@@ -9,7 +9,7 @@ ACardActor::ACardActor()
 
 void ACardActor::Highlight()
 {
-	if (IsPicked) return;
+	if (IsPicked || IsHighlighted) return;
 	
 	if (AActor* OwnerActor = GetOwner())
 	{

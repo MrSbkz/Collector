@@ -60,6 +60,9 @@ private:
 	/** Callbacks */
 	UFUNCTION()
 	void OnActorCancelingFinished();
+
+	UFUNCTION()
+	void OnActorPickingFinished();
 	/** end Callbacks */
 
 	UPROPERTY()
@@ -73,4 +76,5 @@ private:
 
 	FVector2D LastMousePos;
 	bool IsActorPicked = false;
+	bool IsPickedActorMoving = false;
 };
