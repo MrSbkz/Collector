@@ -7,6 +7,8 @@
 #include "Collector/Interface/PlayerInterface.h"
 #include "CollectorBattlePawn.generated.h"
 
+class UCameraComponent;
+
 UCLASS()
 class COLLECTOR_API ACollectorBattlePawn : public ACollectorBattlePawnBase, public IPlayerInterface
 {
@@ -19,17 +21,15 @@ protected:
 	virtual void BeginPlay() override;
 
 	/** Player Interface*/
-	virtual FTransform GetPickedCardTransform_Implementation() override;
+	virtual FVector GetPickedCardLocation_Implementation() override;
 	/** end Player Interface*/
 
-	UFUNCTION(BlueprintCallable, BlueprintPure)
-	ECameraPosition GetNextCameraPosition(
-		const ECameraPosition CurrentCameraPosition,
-		int32 NextCameraPositionIndex);
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UCameraComponent> CameraComponent;
 
-	UPROPERTY(BlueprintReadWrite)
-	TMap<ECameraPosition, FTransform> CameraPositionsToTransforms;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UBillboardComponent> CardsBillboardComponent;
 
-	UPROPERTY(BlueprintReadWrite)
-	FTransform PickedCardTransform;
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UBillboardComponent> PickedCardBillboardComponent;
 };

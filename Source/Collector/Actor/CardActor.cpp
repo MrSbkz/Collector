@@ -9,7 +9,7 @@ ACardActor::ACardActor()
 
 void ACardActor::Highlight()
 {
-	if (IsPicked) return;
+	if (IsPicked || IsHighlighted) return;
 	
 	if (AActor* OwnerActor = GetOwner())
 	{
@@ -17,7 +17,7 @@ void ACardActor::Highlight()
 		{
 			if (const APlayerController* PC = Cast<APlayerController>(OwnerPawn->GetController()))
 			{
-				InitialTransform = GetTransform();
+				InitialLocation = GetActorLocation();
 				int32 ViewportX, ViewportY;
 				PC->GetViewportSize(ViewportX, ViewportY);
 				const float ScreenX = ViewportX / 2.0f;
@@ -45,7 +45,7 @@ void ACardActor::Highlight()
 
 				SetActorLocation(NewLocation);
 
-				HighlightTransform = GetTransform();
+				HighlightLocation = GetActorLocation();
 				IsHighlighted = true;
 			}
 		}
@@ -55,8 +55,8 @@ void ACardActor::Highlight()
 void ACardActor::Unhighlight()
 {
 	if (IsPicked) return;
-	
-	SetActorTransform(InitialTransform);
+
+	SetActorLocation(InitialLocation);
 	IsHighlighted = false;
 }
 

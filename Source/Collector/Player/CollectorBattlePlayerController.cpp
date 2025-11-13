@@ -6,7 +6,6 @@
 #include "Collector/AwaitableObject.h"
 #include "Collector/Components/DeckComponent.h"
 #include "Collector/Interface/InteractionInterface.h"
-#include "Collector/Interface/PlayerInterface.h"
 
 void ACollectorBattlePlayerController::PlayerTick(float DeltaTime)
 {
@@ -50,18 +49,6 @@ void ACollectorBattlePlayerController::SetupInputComponent()
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent))
 	{
 		EnhancedInputComponent->BindAction(
-			NextCameraAction,
-			ETriggerEvent::Started,
-			this,
-			&ACollectorBattlePlayerController::NextCamera);
-
-		EnhancedInputComponent->BindAction(
-			PreviousCameraAction,
-			ETriggerEvent::Started,
-			this,
-			&ACollectorBattlePlayerController::PreviousCamera);
-
-		EnhancedInputComponent->BindAction(
 			BaseSelectAction,
 			ETriggerEvent::Started,
 			this,
@@ -83,44 +70,32 @@ void ACollectorBattlePlayerController::SetupInputComponent()
 
 void ACollectorBattlePlayerController::CursorTrace()
 {
+	if (IsPickedActorMoving) return;
+	
 	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 
-	if (!CursorHit.bBlockingHit) return;
+	if (!CursorHit.bBlockingHit)
+	{
+		if (LastActor && LastActor->Implements<UInteractionInterface>())
+		{
+			UDeckComponent* OwnerDeckComponent = GetPawn()->FindComponentByClass<UDeckComponent>();
+			Cast<IInteractionInterface>(LastActor)->Unhighlight();
+			if (OwnerDeckComponent) OwnerDeckComponent->SetHighlightedCard(nullptr);
 
+			LastActor = nullptr;
+			ThisActor = nullptr;
+		}
+		return;
+	}
+	
 	UpdateActorHighlighting(CursorHit.GetActor());
-}
-
-// ReSharper disable once CppMemberFunctionMayBeConst
-void ACollectorBattlePlayerController::NextCamera()
-{
-	if (IsActorPicked || IsCameraSwitching) return;
-
-	if (const IPlayerInterface* PlayerInterface = Cast<IPlayerInterface>(GetPawn()))
-	{
-		IsCameraSwitching = true;
-		UAwaitableObject* CallbackObject = NewObject<UAwaitableObject>();
-		CallbackObject->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnCameraSwitchFinished);
-		PlayerInterface->Execute_SwitchCamera(GetPawn(), 1, CallbackObject);
-	}
-}
-
-// ReSharper disable once CppMemberFunctionMayBeConst
-void ACollectorBattlePlayerController::PreviousCamera()
-{
-	if (IsActorPicked || IsCameraSwitching) return;
-
-	if (const IPlayerInterface* PlayerInterface = Cast<IPlayerInterface>(GetPawn()))
-	{
-		IsCameraSwitching = true;
-		UAwaitableObject* CallbackObject = NewObject<UAwaitableObject>();
-		CallbackObject->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnCameraSwitchFinished);
-		PlayerInterface->Execute_SwitchCamera(GetPawn(), -1, CallbackObject);
-	}
 }
 
 void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& InputActionValue)
 {
+	if (IsActorPicked || IsPickedActorMoving) return;
+	
 	const FVector2d InputAxisVector = InputActionValue.Get<FVector2d>();
 	if (FMath::Abs(InputAxisVector.X) >= FMath::Abs(InputAxisVector.Y))
 	{
@@ -131,54 +106,42 @@ void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& Inp
 	}
 	else
 	{
-		if (InputAxisVector.Y > 0)
-		{
-			NextCamera();
-		}
-		else
-		{
-			PreviousCamera();
-		}
+		// TODO: Switch to slots/hand
 	}
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ACollectorBattlePlayerController::PickActor()
 {
-	if (IsCameraSwitching || IsActorPicked || !IsValid(ThisActor) || !ThisActor->Implements<UInteractionInterface>())
+	if (IsActorPicked || !IsValid(ThisActor) || !ThisActor->Implements<UInteractionInterface>())
 	{
 		return;
 	}
 
 	PickedActor = ThisActor;
+	ThisActor = nullptr;
 	IsActorPicked = true;
-	IsCameraSwitching = true;
-	IInteractionInterface::Execute_Pick(ThisActor);
+	IsPickedActorMoving = true;
 
-	UAwaitableObject* SwitchCameraCallbackObject = NewObject<UAwaitableObject>();
-	SwitchCameraCallbackObject->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnCameraSwitchFinished);
-	IPlayerInterface::Execute_SwitchCameraToPosition(GetPawn(), ECameraPosition::Table, SwitchCameraCallbackObject);
+	UAwaitableObject* PickActorCallback = NewObject<UAwaitableObject>();
+	PickActorCallback->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnActorPickingFinished);
+	IInteractionInterface::Execute_Pick(PickedActor, PickActorCallback);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ACollectorBattlePlayerController::CancelPicking()
 {
-	if (IsCameraSwitching
-		|| !IsActorPicked
+	if (!IsActorPicked
 		|| !IsValid(PickedActor)
 		|| !PickedActor->Implements<UInteractionInterface>())
 	{
 		return;
 	}
-	IsCameraSwitching = true;
 
+	IsPickedActorMoving = true;
 	UAwaitableObject* CancelingCallback = NewObject<UAwaitableObject>();
 	CancelingCallback->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnActorCancelingFinished);
 	IInteractionInterface::Execute_CancelPicking(PickedActor, CancelingCallback);
-
-	UAwaitableObject* SwitchCameraCallback = NewObject<UAwaitableObject>();
-	SwitchCameraCallback->OnFinished.AddDynamic(this, &ACollectorBattlePlayerController::OnCameraSwitchFinished);
-	IPlayerInterface::Execute_SwitchCameraToPosition(GetPawn(), ECameraPosition::Middle, SwitchCameraCallback);
 
 	IsActorPicked = false;
 }
@@ -229,10 +192,7 @@ void ACollectorBattlePlayerController::HandleMouseMovement()
 	if (GetMousePosition(MouseX, MouseY))
 	{
 		const FVector2D CurrentPos(MouseX, MouseY);
-
-		float Distance = FVector2D::Distance(LastMousePos, CurrentPos);
-
-		if (Distance > MouseMovementThreshold)
+		if (FVector2D::Distance(LastMousePos, CurrentPos) > MouseMovementThreshold)
 		{
 			SetShowMouseCursor(true);
 			SetInputMode(FInputModeGameAndUI());
@@ -242,13 +202,14 @@ void ACollectorBattlePlayerController::HandleMouseMovement()
 	}
 }
 
-void ACollectorBattlePlayerController::OnCameraSwitchFinished()
-{
-	IsCameraSwitching = false;
-}
-
 void ACollectorBattlePlayerController::OnActorCancelingFinished()
 {
-	//UpdateActorHighlighting(PickedActor);
+	UpdateActorHighlighting(PickedActor);
+	IsPickedActorMoving = false;
 	PickedActor = nullptr;
+}
+
+void ACollectorBattlePlayerController::OnActorPickingFinished()
+{
+	IsPickedActorMoving = false;
 }

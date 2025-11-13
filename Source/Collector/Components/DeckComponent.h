@@ -17,9 +17,12 @@ class COLLECTOR_API UDeckComponent : public UActorComponent
 
 public:
 	UDeckComponent();
-	void SpawnCards();
+	void SpawnCards(const FTransform& CardsTransform);
 	void SetHighlightedCard(AActor* Actor);
 	AActor* SelectNextCard(int32 Value);
+
+	UFUNCTION(BlueprintCallable)
+	void HideOrShowHandCards(AActor* IgnoredActor, const bool Hide);
 
 protected:
 	UPROPERTY(EditDefaultsOnly)
@@ -38,18 +41,18 @@ protected:
 	float RotationStep = 5.0f;
 
 	UPROPERTY(EditDefaultsOnly)
-	FTransform HandCardsTransform;
-
-	UPROPERTY(EditDefaultsOnly)
 	float OffsetZCoefficient = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly)
 	bool IsFanSpawning = false;
 
+	UPROPERTY(EditDefaultsOnly)
+	float HiddenCardsZOffset = 15.f;
+
 private:
 	void LoadCards();
-	void InitializeCardsInHand();
-	void UpdateHandLayout();
+	void InitializeCardsInHand(const FTransform& CardsTransform);
+	void UpdateHandLayout(const FTransform& CardsTransform);
 	int32 GetHighlightedCardIndex() const;
 	
 	UPROPERTY()

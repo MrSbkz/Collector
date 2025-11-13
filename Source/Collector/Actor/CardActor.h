@@ -73,6 +73,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void SetCardUI(const FCardDetails& CardData);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void MoveToLocation(const FVector& Location);
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category="Highlighting")
 	float HighlightingDistance = 10.f;
@@ -81,10 +84,10 @@ protected:
 	float HeightOffset = 10.f;
 
 	UPROPERTY(BlueprintReadOnly)
-	FTransform HighlightTransform = FTransform();
+	FVector HighlightLocation = FVector();
 
 	UPROPERTY(BlueprintReadOnly)
-	FTransform InitialTransform;
+	FVector InitialLocation = FVector();
 
 	UPROPERTY(BlueprintReadWrite)
 	bool IsPicked = false;

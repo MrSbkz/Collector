@@ -32,12 +32,6 @@ protected:
 	TObjectPtr<UInputAction> BaseSelectAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> NextCameraAction;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
-	TObjectPtr<UInputAction> PreviousCameraAction;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	TObjectPtr<UInputAction> PickActorAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -53,8 +47,6 @@ private:
 	void CursorTrace();
 
 	/** Input */
-	void NextCamera();
-	void PreviousCamera();
 	void OnBaseSelect(const FInputActionValue& InputActionValue);
 	void PickActor();
 	void CancelPicking();
@@ -67,10 +59,10 @@ private:
 
 	/** Callbacks */
 	UFUNCTION()
-	void OnCameraSwitchFinished();
+	void OnActorCancelingFinished();
 
 	UFUNCTION()
-	void OnActorCancelingFinished();
+	void OnActorPickingFinished();
 	/** end Callbacks */
 
 	UPROPERTY()
@@ -84,5 +76,5 @@ private:
 
 	FVector2D LastMousePos;
 	bool IsActorPicked = false;
-	bool IsCameraSwitching = false;
+	bool IsPickedActorMoving = false;
 };

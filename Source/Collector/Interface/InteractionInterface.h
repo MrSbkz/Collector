@@ -27,7 +27,7 @@ public:
 	virtual void Unhighlight() = 0;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void Pick();
+	void Pick(const UAwaitableObject* CallbackObject);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void CancelPicking(const UAwaitableObject* CallbackObject);

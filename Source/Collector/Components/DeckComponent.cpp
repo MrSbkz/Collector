@@ -11,11 +11,11 @@ UDeckComponent::UDeckComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-void UDeckComponent::SpawnCards()
+void UDeckComponent::SpawnCards(const FTransform& CardsTransform)
 {
 	LoadCards();
-	InitializeCardsInHand();
-	UpdateHandLayout();
+	InitializeCardsInHand(CardsTransform);
+	UpdateHandLayout(CardsTransform);
 }
 
 void UDeckComponent::SetHighlightedCard(AActor* Actor)
@@ -40,6 +40,21 @@ AActor* UDeckComponent::SelectNextCard(const int32 Value)
 	}
 
 	return HandCards[NextIndex];
+}
+
+void UDeckComponent::HideOrShowHandCards(AActor* IgnoredActor, const bool Hide)
+{
+	const ACardActor* IgnoredCard = Cast<ACardActor>(IgnoredActor);
+	for (ACardActor* Card : HandCards)
+	{
+		if (Card != IgnoredCard)
+		{
+			FVector TargetLocation = Card->GetActorLocation();
+			TargetLocation.Z += Hide ? HiddenCardsZOffset * -1.f : HiddenCardsZOffset;
+
+			Card->MoveToLocation(TargetLocation);
+		}
+	}
 }
 
 void UDeckComponent::LoadCards()
@@ -82,7 +97,7 @@ void UDeckComponent::LoadCards()
 	}
 }
 
-void UDeckComponent::InitializeCardsInHand()
+void UDeckComponent::InitializeCardsInHand(const FTransform& CardsTransform)
 {
 	const int32 CardsNumToSpawn = InitialHandCardsNum > PlayerCards.Num() ? PlayerCards.Num() : InitialHandCardsNum;
 
@@ -91,7 +106,7 @@ void UDeckComponent::InitializeCardsInHand()
 		const FCardDetails CardDetails = PlayerCards[FMath::RandRange(0, PlayerCards.Num() - 1)];
 		ACardActor* Card = GetWorld()->SpawnActorDeferred<ACardActor>(
 			CardClass,
-			HandCardsTransform,
+			CardsTransform,
 			GetOwner(),
 			Cast<APawn>(GetOwner()),
 			ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
@@ -99,20 +114,20 @@ void UDeckComponent::InitializeCardsInHand()
 		HandCards.Add(Card);
 		PlayerCards.Remove(CardDetails);
 
-		Card->FinishSpawning(HandCardsTransform);
+		Card->FinishSpawning(CardsTransform);
 		Card->SetData(CardDetails);
 	}
 
 	RemainingCards = PlayerCards;
 }
 
-void UDeckComponent::UpdateHandLayout()
+void UDeckComponent::UpdateHandLayout(const FTransform& CardsTransform)
 {
 	const int32 NumCards = HandCards.Num();
 	if (NumCards == 0) return;
 
-	const FVector Center = HandCardsTransform.GetLocation();
-	const FRotator BaseRotation = HandCardsTransform.Rotator();
+	const FVector Center = CardsTransform.GetLocation();
+	const FRotator BaseRotation = CardsTransform.Rotator();
 
 	for (int32 i = 0; i < NumCards; i++)
 	{
