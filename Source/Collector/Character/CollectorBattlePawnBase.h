@@ -17,6 +17,6 @@ public:
 	ACollectorBattlePawnBase();
 
 protected:
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category="Components")
 	TObjectPtr<UDeckComponent> DeckComponent;
 };

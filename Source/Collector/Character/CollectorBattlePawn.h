@@ -7,6 +7,8 @@
 #include "Collector/Interface/PlayerInterface.h"
 #include "CollectorBattlePawn.generated.h"
 
+class UCameraComponent;
+
 UCLASS()
 class COLLECTOR_API ACollectorBattlePawn : public ACollectorBattlePawnBase, public IPlayerInterface
 {
@@ -32,4 +34,10 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite)
 	FTransform PickedCardTransform;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UCameraComponent> CameraComponent;
+
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UBillboardComponent> CardsBillboardComponent;
 };
