@@ -16,4 +16,3 @@ void ACardSlotActor::Highlight()
 void ACardSlotActor::Unhighlight()
 {
 }
-
