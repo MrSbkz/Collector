@@ -71,7 +71,7 @@ void ACollectorBattlePlayerController::SetupInputComponent()
 void ACollectorBattlePlayerController::CursorTrace()
 {
 	if (IsPickedActorMoving) return;
-	
+
 	FHitResult CursorHit;
 	GetHitResultUnderCursor(ECC_Visibility, false, CursorHit);
 
@@ -88,14 +88,14 @@ void ACollectorBattlePlayerController::CursorTrace()
 		}
 		return;
 	}
-	
+
 	UpdateActorHighlighting(CursorHit.GetActor());
 }
 
 void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& InputActionValue)
 {
 	if (IsActorPicked || IsPickedActorMoving) return;
-	
+
 	const FVector2d InputAxisVector = InputActionValue.Get<FVector2d>();
 	if (FMath::Abs(InputAxisVector.X) >= FMath::Abs(InputAxisVector.Y))
 	{
@@ -113,7 +113,10 @@ void ACollectorBattlePlayerController::OnBaseSelect(const FInputActionValue& Inp
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ACollectorBattlePlayerController::PickActor()
 {
-	if (IsActorPicked || !IsValid(ThisActor) || !ThisActor->Implements<UInteractionInterface>())
+	if (IsPickedActorMoving
+		|| IsActorPicked
+		|| !IsValid(ThisActor)
+		|| !ThisActor->Implements<UInteractionInterface>())
 	{
 		return;
 	}
@@ -131,7 +134,8 @@ void ACollectorBattlePlayerController::PickActor()
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ACollectorBattlePlayerController::CancelPicking()
 {
-	if (!IsActorPicked
+	if (IsPickedActorMoving ||
+		!IsActorPicked
 		|| !IsValid(PickedActor)
 		|| !PickedActor->Implements<UInteractionInterface>())
 	{
