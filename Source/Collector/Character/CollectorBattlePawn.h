@@ -25,6 +25,9 @@ protected:
 	/** end Player Interface*/
 
 	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<USceneComponent> RootSceneComponent;
+
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UCameraComponent> CameraComponent;
 
 	UPROPERTY(EditDefaultsOnly)

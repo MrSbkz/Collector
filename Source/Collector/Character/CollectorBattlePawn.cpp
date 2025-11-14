@@ -10,8 +10,11 @@ ACollectorBattlePawn::ACollectorBattlePawn()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	RootSceneComponent = CreateDefaultSubobject<USceneComponent>("RootSceneComponent");
+	SetRootComponent(RootSceneComponent);
+
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-	CameraComponent->SetupAttachment(GetRootComponent());
+	CameraComponent->SetupAttachment(RootSceneComponent);
 
 	CardsBillboardComponent = CreateDefaultSubobject<UBillboardComponent>("CardsBillboardComponent");
 	CardsBillboardComponent->SetupAttachment(CameraComponent);
